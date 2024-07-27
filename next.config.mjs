@@ -3,6 +3,16 @@
 const nextConfig = {
   experimental: {
     ppr: 'incremental'
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'ui-avatars.com',
+        port: '',
+        pathname: '/api/**'
+      }
+    ]
   }
 };
 

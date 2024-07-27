@@ -1,4 +1,5 @@
 import { fetchCustomersPages } from '@/app/lib/data';
+import { CreateCustomer } from '@/app/ui/customers/buttons';
 import CustomersTable from '@/app/ui/customers/table';
 import { lusitana } from '@/app/ui/fonts';
 import Pagination from '@/app/ui/invoices/pagination';
@@ -28,6 +29,7 @@ export default async function Page({
       </div>
       <div className='mt-4 flex items-center justify-between gap-2 md:mt-8'>
         <Search placeholder='Search customers...' />
+        <CreateCustomer />
       </div>
       <Suspense fallback={<InvoicesTableSkeleton />}>
         <CustomersTable query={query} currentPage={currentPage} />

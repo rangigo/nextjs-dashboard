@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
-const FormSchema = z.object({
+const InvoiceFormSchema = z.object({
   id: z.string(),
   customerId: z.string({ invalid_type_error: 'Please select a customer.' }),
   amount: z.coerce
@@ -19,7 +19,7 @@ const FormSchema = z.object({
   date: z.string()
 });
 
-export type State = {
+export type InvoiceErrorState = {
   errors?: {
     customerId?: string[];
     amount?: string[];
@@ -28,10 +28,13 @@ export type State = {
   message?: string | null;
 };
 
-const CreateInvoice = FormSchema.omit({ id: true, date: true });
-const UpdateInvoice = FormSchema.omit({ id: true, date: true });
+const CreateInvoice = InvoiceFormSchema.omit({ id: true, date: true });
+const UpdateInvoice = InvoiceFormSchema.omit({ id: true, date: true });
 
-export async function createInvoice(prevState: State, formData: FormData) {
+export async function createInvoice(
+  prevState: InvoiceErrorState,
+  formData: FormData
+) {
   const rawFormData = Object.fromEntries(formData.entries());
   const validatedFields = CreateInvoice.safeParse(rawFormData);
 
@@ -60,7 +63,7 @@ export async function createInvoice(prevState: State, formData: FormData) {
 
 export async function updateInvoice(
   id: string,
-  prevState: State,
+  prevState: InvoiceErrorState,
   formData: FormData
 ) {
   const rawFormData = Object.fromEntries(formData.entries());
@@ -100,6 +103,62 @@ export async function deleteInvoice(id: string) {
       message: `Database Error: Failed to Delete Invoice with id ${id}`
     };
   }
+}
+
+const CustomerFormSchema = z.object({
+  id: z.string(),
+  name: z
+    .string({
+      invalid_type_error: 'Name must be a string.'
+    })
+    .min(1, { message: 'Please enter a name for the customer.' }),
+  email: z
+    .string({ invalid_type_error: 'Email must be a string.' })
+    .min(1, { message: 'Please enter an email for the customer.' })
+    .email({ message: 'Invalid email address.' }),
+  image_url: z.string()
+});
+
+export type CustomerErrorState = {
+  errors?: {
+    name?: string[];
+    email?: string[];
+  };
+  message?: string | null;
+};
+
+const CreateCustomer = CustomerFormSchema.omit({ id: true, image_url: true });
+
+export async function createCustomer(
+  prevState: CustomerErrorState,
+  formData: FormData
+) {
+  const rawFormData = Object.fromEntries(formData.entries());
+  const validatedFields = CreateCustomer.safeParse(rawFormData);
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing fields. Failed to Create Customer.'
+    };
+  }
+
+  const { name, email } = validatedFields.data;
+  const imageUrl = `https://ui-avatars.com/api/?name=${name
+    .split(' ')
+    .join('+')}`;
+  try {
+    await sql`
+      INSERT INTO customers (name, email, image_url)
+      VALUES (${name}, ${email}, ${imageUrl})
+    `;
+  } catch (error) {
+    return {
+      message: 'Database Error. Failed to Create Customer.'
+    };
+  }
+  revalidatePath('/dashboard/customers');
+  redirect('/dashboard/customers');
 }
 
 export async function authenticate(
