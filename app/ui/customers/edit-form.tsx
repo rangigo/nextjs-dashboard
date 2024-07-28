@@ -2,12 +2,21 @@
 import Link from 'next/link';
 import { EnvelopeIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
-import { createCustomer, CustomerErrorState } from '@/app/lib/actions';
+import { CustomerErrorState, updateCustomer } from '@/app/lib/actions';
 import { useActionState } from 'react';
+import { CustomerForm } from '@/app/lib/definitions';
 
-export default function Form() {
+export default function EditCustomerForm({
+  customer
+}: {
+  customer: CustomerForm;
+}) {
   const initialState: CustomerErrorState = { message: null, errors: {} };
-  const [state, formAction] = useActionState(createCustomer, initialState);
+  const updateCustomerWithId = updateCustomer.bind(null, customer.id);
+  const [state, formAction] = useActionState(
+    updateCustomerWithId,
+    initialState
+  );
 
   return (
     <form action={formAction}>
@@ -28,6 +37,7 @@ export default function Form() {
                 name='name'
                 type='text'
                 placeholder="Enter customer's name"
+                defaultValue={customer.name}
                 className='peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500'
                 aria-describedby='customer-name-error'
               />
@@ -59,6 +69,7 @@ export default function Form() {
                 name='email'
                 type='text'
                 placeholder="Enter customer's email"
+                defaultValue={customer.email}
                 className='peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500'
                 aria-describedby='customer-email-error'
               />
@@ -88,7 +99,7 @@ export default function Form() {
         >
           Cancel
         </Link>
-        <Button type='submit'>Create Customer</Button>
+        <Button type='submit'>Edit Customer</Button>
       </div>
     </form>
   );
