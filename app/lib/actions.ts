@@ -2,10 +2,11 @@
 
 import { signIn } from '@/auth';
 import { sql } from '@vercel/postgres';
-import { AuthError } from 'next-auth';
+import { AuthError, CredentialsSignin } from 'next-auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import bcrypt from 'bcrypt';
 
 const InvoiceFormSchema = z.object({
   id: z.string(),
@@ -214,13 +215,68 @@ export async function authenticate(
     await signIn('credentials', formData);
   } catch (error) {
     if (error instanceof AuthError) {
+      console.log('This is error', error);
       switch (error.type) {
         case 'CredentialsSignin':
           return 'Invalid credentials.';
         default:
+          if (error.cause?.err instanceof CredentialsSignin) {
+            return 'Invalid credentials.';
+          }
           return 'Something went wrong.';
       }
     }
     throw error;
   }
+}
+
+const SignupFormSchema = z
+  .object({
+    name: z.string().min(1, { message: 'Please enter your name.' }),
+    email: z.string().min(1, { message: 'Please enter an email.' }).email(),
+    password: z.string().min(6, {
+      message: 'Please enter a password with at least 6 characters.'
+    }),
+    confirmPassword: z.string().min(6, {
+      message: 'Please enter a password with at least 6 characters.'
+    })
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords did not match.',
+    path: ['confirmPassword']
+  });
+
+export type SignupErrorState = {
+  errors?: {
+    name?: string[];
+    email?: string[];
+    password?: string[];
+    confirmPassword?: string[];
+  };
+  message?: string | null;
+};
+
+export async function signup(prevState: SignupErrorState, formData: FormData) {
+  const rawFormData = Object.fromEntries(formData.entries());
+  const validatedFields = SignupFormSchema.safeParse(rawFormData);
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing fields. Failed to Sign up.'
+    };
+  }
+  const { name, email, password } = validatedFields.data;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    await sql`
+      INSERT INTO users (name, email, password)
+      VALUES (${name}, ${email}, ${hashedPassword})
+    `;
+  } catch (error) {
+    return {
+      message: 'Database Error: Failed to sign up.'
+    };
+  }
+
+  redirect('/login');
 }
