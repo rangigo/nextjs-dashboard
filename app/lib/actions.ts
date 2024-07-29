@@ -208,7 +208,7 @@ export async function deleteCustomer(id: string) {
 }
 
 export async function authenticate(
-  callbackUrl?: string,
+  callbackUrl: string | undefined,
   prevState: string | undefined,
   formData: FormData
 ) {
