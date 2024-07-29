@@ -289,3 +289,18 @@ export async function signup(prevState: SignupErrorState, formData: FormData) {
 
   redirect('/login');
 }
+
+export async function signInOAuth(providerId: string) {
+  try {
+    await signIn(providerId);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      console.log('This is error', error);
+      switch (error.type) {
+        default:
+          return `Can not log in. Something went wrong.`;
+      }
+    }
+    throw error;
+  }
+}
