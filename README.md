@@ -10,4 +10,4 @@ Base on the starter course from Next.js website, some additional functionalities
 
 - Customer Page with Create, Edit and Delete customer with form validations
 - Sign up page
-- OAuth sign in options (coming soon)
+- OAuth sign in options

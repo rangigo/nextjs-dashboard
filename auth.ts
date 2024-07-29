@@ -7,6 +7,8 @@ import { sql } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
 import GitHub from 'next-auth/providers/github';
 import { Provider } from 'next-auth/providers';
+import Google from 'next-auth/providers/google';
+import Twitter from 'next-auth/providers/twitter';
 
 async function getUser(email: string): Promise<User | undefined> {
   try {
@@ -38,7 +40,9 @@ const providers: Provider[] = [
       return null;
     }
   }),
-  GitHub
+  GitHub,
+  Google,
+  Twitter
 ];
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
