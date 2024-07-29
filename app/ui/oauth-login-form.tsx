@@ -40,7 +40,6 @@ export function OAuthLoginForm({ provider }: { provider: OAuthProvider }) {
             alt='Google Logo'
           />
         )}
-
         {provider.name === 'Twitter' && (
           <Image
             priority
@@ -58,10 +57,8 @@ export function OAuthLoginForm({ provider }: { provider: OAuthProvider }) {
           aria-live='polite'
           aria-atomic='true'
         >
-          <>
-            <ExclamationCircleIcon className='h-5 w-5 text-red-500' />
-            <p className='text-sm text-red-500'>{errorMessage}</p>
-          </>
+          <ExclamationCircleIcon className='h-5 w-5 text-red-500' />
+          <p className='text-sm text-red-500'>{errorMessage}</p>
         </div>
       )}
     </form>
