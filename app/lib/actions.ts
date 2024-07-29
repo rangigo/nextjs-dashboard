@@ -208,11 +208,20 @@ export async function deleteCustomer(id: string) {
 }
 
 export async function authenticate(
+  callbackUrl?: string,
   prevState: string | undefined,
   formData: FormData
 ) {
   try {
-    await signIn('credentials', formData);
+    const email = formData.get('email');
+    const password = formData.get('password');
+    await signIn('credentials', {
+      email,
+      password,
+      ...(callbackUrl
+        ? { redirectTo: callbackUrl }
+        : { redirectTo: '/dashboard' })
+    });
   } catch (error) {
     if (error instanceof AuthError) {
       console.log('This is error', error);

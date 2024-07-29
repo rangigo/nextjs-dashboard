@@ -11,9 +11,10 @@ import { useActionState } from 'react';
 import { authenticate } from '../lib/actions';
 import Link from 'next/link';
 
-export default function LoginForm() {
+export default function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
+  const authenticateWithCallbackUrl = authenticate.bind(null, callbackUrl);
   const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
+    authenticateWithCallbackUrl,
     undefined
   );
   return (
