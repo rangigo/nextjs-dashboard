@@ -1,10 +1,10 @@
 import AcmeLogo from '@/app/ui/acme-logo';
 import LoginForm from '@/app/ui/login-form';
+import OAuthLoginForm from '@/app/ui/oauth-login-form';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { lusitana } from '../ui/fonts';
 import { providerMap } from '@/auth';
-import { OAuthLoginForm } from '../ui/oauth-login-form';
 
 export const metadata: Metadata = {
   title: 'Login'

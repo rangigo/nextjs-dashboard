@@ -9,7 +9,11 @@ import githubLogo from '../../public/github-mark.svg';
 import googleLogo from '../../public/google-logo.svg';
 import twitterLogo from '../../public/x-logo.svg';
 
-export function OAuthLoginForm({ provider }: { provider: OAuthProvider }) {
+export default function OAuthLoginForm({
+  provider
+}: {
+  provider: OAuthProvider;
+}) {
   const signInOAuthWithProviderId = signInOAuth.bind(null, provider.id);
   const [errorMessage, formAction, isPending] = useActionState(
     signInOAuthWithProviderId,
