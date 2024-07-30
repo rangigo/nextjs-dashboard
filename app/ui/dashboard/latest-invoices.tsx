@@ -28,7 +28,7 @@ export default async function LatestInvoices() {
                   <Image
                     src={invoice.image_url}
                     alt={`${invoice.name}'s profile picture`}
-                    className='mr-4 rounded-full aspect-square object-none'
+                    className='mr-4 rounded-full aspect-square object-contain'
                     width={32}
                     height={32}
                   />
