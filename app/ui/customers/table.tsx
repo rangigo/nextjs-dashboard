@@ -28,7 +28,7 @@ export default async function CustomersTable({
                         <div className='flex items-center gap-3'>
                           <Image
                             src={customer.image_url}
-                            className='rounded-ful aspect-square object-cover'
+                            className='rounded-ful aspect-square'
                             alt={`${customer.name}'s profile picture`}
                             width={28}
                             height={28}
@@ -90,7 +90,7 @@ export default async function CustomersTable({
                       <div className='flex items-center gap-3'>
                         <Image
                           src={customer.image_url}
-                          className='rounded-full aspect-square object-cover'
+                          className='rounded-full aspect-square'
                           alt={`${customer.name}'s profile picture`}
                           width={25}
                           height={25}
