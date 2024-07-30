@@ -8,6 +8,7 @@ import Image from 'next/image';
 import githubLogo from '../../public/github-mark.svg';
 import googleLogo from '../../public/google-logo.svg';
 import twitterLogo from '../../public/x-logo.svg';
+import facebookLogo from '../../public/Facebook_Logo_Primary.png';
 
 export default function OAuthLoginForm({
   provider
@@ -50,7 +51,16 @@ export default function OAuthLoginForm({
             src={twitterLogo}
             width={20}
             height={20}
-            alt='Google Logo'
+            alt='Twitter Logo'
+          />
+        )}
+        {provider.name === 'Facebook' && (
+          <Image
+            priority
+            src={facebookLogo}
+            width={20}
+            height={20}
+            alt='Facebook Logo'
           />
         )}
         <span className='ml-2'>Sign in with {provider.name}</span>

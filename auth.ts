@@ -9,6 +9,7 @@ import GitHub from 'next-auth/providers/github';
 import { Provider } from 'next-auth/providers';
 import Google from 'next-auth/providers/google';
 import Twitter from 'next-auth/providers/twitter';
+import Facebook from 'next-auth/providers/facebook';
 
 async function getUser(email: string): Promise<User | undefined> {
   try {
@@ -42,7 +43,8 @@ const providers: Provider[] = [
   }),
   GitHub,
   Google,
-  Twitter
+  Twitter,
+  Facebook
 ];
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
