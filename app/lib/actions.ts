@@ -7,6 +7,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
 const InvoiceFormSchema = z.object({
   id: z.string(),
@@ -106,6 +108,13 @@ export async function deleteInvoice(id: string) {
   }
 }
 
+const ACCEPTED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp'
+];
+
 const CustomerFormSchema = z.object({
   id: z.string(),
   name: z
@@ -117,19 +126,36 @@ const CustomerFormSchema = z.object({
     .string({ invalid_type_error: 'Email must be a string.' })
     .min(1, { message: 'Please enter an email for the customer.' })
     .email({ message: 'Invalid email address.' }),
-  image_url: z.string()
+  image_url: z.string(),
+  avatar: z
+    .instanceof(File)
+    .refine((file) => {
+      if (file.size === 0 || file.name === undefined) return true;
+      return ACCEPTED_IMAGE_TYPES.includes(file?.type);
+    }, '.jpg, .jpeg, .png and .webp files are accepted.')
+    .refine((file) => file.size <= 5000000, `Max file size is 5MB.`)
 });
 
 export type CustomerErrorState = {
   errors?: {
     name?: string[];
     email?: string[];
+    avatar?: string[];
   };
   message?: string | null;
 };
 
 const CreateCustomer = CustomerFormSchema.omit({ id: true, image_url: true });
 const UpdateCustomer = CustomerFormSchema.omit({ id: true, image_url: true });
+
+const Bucket = process.env.NEXT_PUBLIC_AWS_BUCKET_NAME;
+const s3 = new S3Client({
+  region: process.env.NEXT_PUBLIC_AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID as string,
+    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY as string
+  }
+});
 
 export async function createCustomer(
   prevState: CustomerErrorState,
@@ -141,14 +167,39 @@ export async function createCustomer(
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing fields. Failed to Create Customer.'
+      message: 'Fields have errors. Failed to Create Customer.'
     };
   }
 
-  const { name, email } = validatedFields.data;
-  const imageUrl = `https://ui-avatars.com/api/?name=${name
+  const { name, email, avatar } = validatedFields.data;
+  let imageUrl = `https://ui-avatars.com/api/?name=${name
     .split(' ')
     .join('+')}`;
+
+  if (avatar.size > 0) {
+    const ext = avatar?.name.split('.').at(-1);
+    const uuid = randomUUID().replace(/-/g, '');
+    const fileName = `${uuid}${ext ? '.' + ext : ''}`;
+    const arrayBuffer = await avatar.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
+
+    try {
+      const uploadToS3 = new PutObjectCommand({
+        Bucket,
+        Key: fileName,
+        Body: buffer
+      });
+      await s3.send(uploadToS3);
+    } catch (error) {
+      console.error(error);
+      return {
+        message: 'S3 error. Failed to upload image to S3.'
+      };
+    }
+
+    imageUrl = `https://nextjs-dashboard-pv.s3.eu-north-1.amazonaws.com/${fileName}`;
+  }
+
   try {
     await sql`
       INSERT INTO customers (name, email, image_url)
@@ -178,19 +229,55 @@ export async function updateCustomer(
     };
   }
 
-  const { name, email } = validatedFields.data;
+  const { name, email, avatar } = validatedFields.data;
+  if (avatar.size > 0 && avatar.name !== undefined) {
+    const ext = avatar?.name.split('.').at(-1);
+    const uuid = randomUUID().replace(/-/g, '');
+    const fileName = `${uuid}${ext ? '.' + ext : ''}`;
+    const arrayBuffer = await avatar.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
 
-  try {
-    await sql`
-      UPDATE customers
-      SET name = ${name}, email = ${email}
-      WHERE id = ${id};
-    `;
-  } catch (error) {
-    return {
-      message: `Database Error. Failed to Update Customer with id ${id}`
-    };
+    try {
+      const uploadToS3 = new PutObjectCommand({
+        Bucket,
+        Key: fileName,
+        Body: buffer
+      });
+      await s3.send(uploadToS3);
+    } catch (error) {
+      console.error(error);
+      return {
+        message: 'S3 error. Failed to upload image to S3.'
+      };
+    }
+    const imageUrl = `https://nextjs-dashboard-pv.s3.eu-north-1.amazonaws.com/${fileName}`;
+    try {
+      await sql`
+        UPDATE customers
+        SET name = ${name}, email = ${email}, image_url = ${imageUrl}
+        WHERE id = ${id};
+      `;
+    } catch (error) {
+      console.log(error);
+      return {
+        message: `Database Error. Failed to Update Customer with id ${id}`
+      };
+    }
+  } else {
+    try {
+      await sql`
+        UPDATE customers
+        SET name = ${name}, email = ${email}
+        WHERE id = ${id};
+      `;
+    } catch (error) {
+      console.log(error);
+      return {
+        message: `Database Error. Failed to Update Customer with id ${id}`
+      };
+    }
   }
+
   revalidatePath('/dashboard/customers');
   redirect('/dashboard/customers');
 }

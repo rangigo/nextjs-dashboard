@@ -11,6 +11,13 @@ const nextConfig = {
         hostname: 'ui-avatars.com',
         port: '',
         pathname: '/api/**'
+      },
+
+      {
+        protocol: 'https',
+        hostname: 'nextjs-dashboard-pv.s3.eu-north-1.amazonaws.com',
+        port: '',
+        pathname: '/**'
       }
     ]
   }

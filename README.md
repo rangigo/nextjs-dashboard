@@ -9,5 +9,6 @@ For more information, see the [course curriculum](https://nextjs.org/learn) on t
 Base on the starter course from Next.js website, some additional functionalities are added to the app:
 
 - Customer Page with Create, Edit and Delete customer with form validations
+- Uploading customers' profile picture utilizing React Server Actions and S3 SDK
 - Sign up page
 - OAuth sign in options

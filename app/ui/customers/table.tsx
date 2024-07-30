@@ -90,10 +90,10 @@ export default async function CustomersTable({
                       <div className='flex items-center gap-3'>
                         <Image
                           src={customer.image_url}
-                          className='rounded-full'
+                          className='rounded-full aspect-square object-cover'
                           alt={`${customer.name}'s profile picture`}
-                          width={28}
-                          height={28}
+                          width={25}
+                          height={25}
                         />
                         <p>{customer.name}</p>
                       </div>
@@ -110,7 +110,7 @@ export default async function CustomersTable({
                     <td className='whitespace-nowrap px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md'>
                       {customer.total_paid}
                     </td>
-                    <td className='whitespace-nowrap py-3 pl-6 pr-3'>
+                    <td className='whitespace-nowrap py-3 pl-6 x`xpr-3'>
                       <div className='flex justify-end gap-3'>
                         <UpdateCustomer id={customer.id} />
                         <DeleteCustomer id={customer.id} />

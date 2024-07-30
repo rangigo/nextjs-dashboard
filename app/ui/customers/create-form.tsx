@@ -15,11 +15,8 @@ export default function Form() {
         {/* Customer Name */}
 
         <div className='mb-4'>
-          <label
-            htmlFor='customerName'
-            className='mb-2 block text-sm font-medium'
-          >
-            Set your customer&apos; name
+          <label htmlFor='name' className='mb-2 block text-sm font-medium'>
+            Set customer&apos; name
           </label>
           <div className='relative mt-2 rounded-md'>
             <div className='relative'>
@@ -47,11 +44,8 @@ export default function Form() {
 
         {/* Customer Email */}
         <div className='mb-4'>
-          <label
-            htmlFor='customerEmail'
-            className='mb-2 block text-sm font-medium'
-          >
-            Set your customer&apos;s email
+          <label htmlFor='email' className='mb-2 block text-sm font-medium'>
+            Set customer&apos;s email
           </label>
           <div className='relative mt-2 rounded-md'>
             <div className='relative'>
@@ -70,6 +64,33 @@ export default function Form() {
           <div id='customer-email-error' aria-live='polite' aria-atomic='true'>
             {state.errors?.email &&
               state.errors.email.map((error) => (
+                <p key={error} className='mt-2 text-sm text-red-500'>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+
+        {/* Customer Avatar */}
+        <div className='mb-4'>
+          <label htmlFor='avatar' className='mb-2 block text-sm font-medium'>
+            Upload customer&apos;s profile picture (optional)
+          </label>
+          <div className='relative mt-2 rounded-md'>
+            <div className='relative'>
+              <input
+                id='avatar'
+                name='avatar'
+                type='file'
+                className='peer block w-full text-sm'
+                aria-describedby='customer-avatar-error'
+                accept='image/*'
+              />
+            </div>
+          </div>
+          <div id='customer-avatar-error' aria-live='polite' aria-atomic='true'>
+            {state.errors?.avatar &&
+              state.errors.avatar.map((error) => (
                 <p key={error} className='mt-2 text-sm text-red-500'>
                   {error}
                 </p>
