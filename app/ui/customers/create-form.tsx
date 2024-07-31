@@ -7,7 +7,10 @@ import { useActionState } from 'react';
 
 export default function Form() {
   const initialState: CustomerErrorState = { message: null, errors: {} };
-  const [state, formAction] = useActionState(createCustomer, initialState);
+  const [state, formAction, isPending] = useActionState(
+    createCustomer,
+    initialState
+  );
 
   return (
     <form action={formAction}>
@@ -111,7 +114,9 @@ export default function Form() {
         >
           Cancel
         </Link>
-        <Button type='submit'>Create Customer</Button>
+        <Button type='submit' aria-disabled={isPending}>
+          Create Customer
+        </Button>
       </div>
     </form>
   );

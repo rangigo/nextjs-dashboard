@@ -13,7 +13,7 @@ export default function EditCustomerForm({
 }) {
   const initialState: CustomerErrorState = { message: null, errors: {} };
   const updateCustomerWithId = updateCustomer.bind(null, customer.id);
-  const [state, formAction] = useActionState(
+  const [state, formAction, isPending] = useActionState(
     updateCustomerWithId,
     initialState
   );
@@ -128,7 +128,9 @@ export default function EditCustomerForm({
         >
           Cancel
         </Link>
-        <Button type='submit'>Edit Customer</Button>
+        <Button type='submit' aria-disabled={isPending}>
+          Edit Customer
+        </Button>
       </div>
     </form>
   );
