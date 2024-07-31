@@ -12,3 +12,5 @@ Base on the starter course from Next.js website, some additional functionalities
 - Uploading customers' profile picture utilizing React Server Actions and S3 SDK
 - Sign up page
 - OAuth sign in options
+
+Production link: https://nextjs-dashboard-ashy-ten-41.vercel.app
