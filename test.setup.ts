@@ -20,6 +20,15 @@ vi.mock('next/font/google', () => {
 
 vi.mock('next/router', () => require('next-router-mock'));
 
+vi.mock('./auth.ts', async (importOriginal) => {
+  return {
+    ...(await importOriginal<typeof import('./auth.ts')>()),
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+    auth: vi.fn()
+  };
+});
+
 export function renderWithUser(
   jsx: React.ReactNode,
   options?: Omit<RenderOptions, 'queries'>
