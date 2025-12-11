@@ -1,6 +1,9 @@
+'use client'
 import Link from 'next/link';
 import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { deleteCustomer } from '@/app/lib/actions';
+import { useActionState } from 'react';
+import { toast } from 'sonner';
 
 export function CreateCustomer() {
   return (
@@ -26,9 +29,18 @@ export function UpdateCustomer({ id }: { id: string }) {
 }
 
 export function DeleteCustomer({ id }: { id: string }) {
+  const initialState: { message?: string } = { message: '' };
   const deleteCustomerWithId = deleteCustomer.bind(null, id);
+  const [state, formAction] = useActionState(deleteCustomerWithId, initialState)
+
+  console.log('state', state)
+
+  if (state?.message) {
+    toast.error(state.message)
+  }
+
   return (
-    <form action={deleteCustomerWithId}>
+    <form action={formAction}>
       <button className='rounded-md border p-2 hover:bg-gray-100'>
         <span className='sr-only'>Delete</span>
         <TrashIcon className='w-5' />
