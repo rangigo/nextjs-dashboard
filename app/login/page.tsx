@@ -10,11 +10,12 @@ export const metadata: Metadata = {
   title: 'Login'
 };
 
-export default function LoginPage({
-  searchParams
-}: {
-  searchParams?: { callbackUrl?: string };
-}) {
+export default async function LoginPage(
+  props: {
+    searchParams?: Promise<{ callbackUrl?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   return (
     <main className='flex items-center justify-center md:h-screen'>
       <div className='relative mx-auto flex w-full max-w-[400px] flex-col space-y-2.5 p-4 md:-mt-32'>
