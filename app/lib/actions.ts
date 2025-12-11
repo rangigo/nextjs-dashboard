@@ -9,6 +9,7 @@ import { z } from 'zod';
 import bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { User } from './definitions';
 
 const InvoiceFormSchema = z.object({
   id: z.string(),
@@ -361,6 +362,14 @@ export async function signup(prevState: SignupErrorState, formData: FormData) {
     };
   }
   const { name, email, password } = validatedFields.data;
+  const existingUser = (await sql<User>`SELECT * FROM users WHERE email=${email}`).rows[0];
+  
+  if (existingUser) {
+    return {
+      message: `Failed to sign up. User with email ${email} already existed.`
+    }
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
     await sql`
@@ -368,6 +377,7 @@ export async function signup(prevState: SignupErrorState, formData: FormData) {
       VALUES (${name}, ${email}, ${hashedPassword})
     `;
   } catch (error) {
+    console.log(error)
     return {
       message: 'Database Error: Failed to sign up.'
     };
